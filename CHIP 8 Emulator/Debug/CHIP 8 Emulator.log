@@ -1,0 +1,5 @@
+﻿  main.cpp
+c:\users\dnaka_000\source\repos\chip 8 emulator\chip 8 emulator\main.cpp(102): warning C4244: 'argument': conversion from 'double' to 'DWORD', possible loss of data
+  chip8.cpp
+  Generating Code...
+  CHIP 8 Emulator.vcxproj -> C:\Users\dnaka_000\source\repos\CHIP 8 Emulator\Debug\CHIP 8 Emulator.exe
