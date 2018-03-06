@@ -10,10 +10,13 @@
 
 chip8* mychip;
 graphics* g;
+bool gameChosen = false;
 
 void draw();			//draws on window
 
 void getInput();		//determines what key is pressed
+
+string games();			//displays the game choices
 
 LRESULT CALLBACK WindowProc(_In_ HWND   hwnd, _In_ UINT   uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
 {
@@ -70,18 +73,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int n
 
 	mychip = new chip8();
 
-	mychip->loadGame("brix");
-
 	clock_t t;
 	float dur;
 
 	while (message.message != WM_QUIT)// && message.message != WM_CLOSE && message.message != WM_DESTROY)
 	{
+		t = clock();
+
 		if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))	//if there was a message then we want to send it to window proc
 			DispatchMessage(&message);
-		else if(mychip)
+		else if (!gameChosen)				//runs intro screen of game choices
 		{
-			t = clock();
+			string game = games();
+
+			if (game.compare("") != 0)		//chose game
+				mychip->loadGame(game);
+
+		}
+		else if (mychip)					//runs chip emulator
+		{
 
 			//update
 			mychip->eCycle();
@@ -91,16 +101,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int n
 			{
 				draw();
 			}
-			
-			getInput();
-			
-			t = clock() - t;	//get clock duration of cycle
-
-			dur = (float)t * 1000 / CLOCKS_PER_SEC;		//duration in milli
-
-			if(16.67 > dur)
-				Sleep(16.67 - (float)dur);
 		}
+
+		getInput();
+
+		t = clock() - t;	//get clock duration of cycle
+
+		dur = (float)t * 1000 / CLOCKS_PER_SEC;		//duration in milli
+
+		if (16.67 > dur)
+			Sleep(16.67 - (float)dur);
 	}
 
 	/*
@@ -113,6 +123,73 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int n
 	delete g;
 
 	return 0;
+}
+
+string games()
+{
+	unsigned char num[15] =
+	{
+		0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	};
+
+	unsigned char word[15] =
+	{
+		0x70, 0x20, 0x20, 0x20, 0x20, // T
+		0xE0, 0x90, 0xE0, 0x80, 0x80, // P
+		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+	};
+
+	int x, y = 0;
+
+	g->BeginDraw();
+	
+	for (int i = 0; i < 15; i++)
+	{
+		if (i % 5 == 0)
+			y++;
+
+		for (int j = 0; j < 8; j++)
+		{
+			if ((num[i] & (0x80 >> j)) != 0)	//bit is 1
+			{
+				x = 28 + j;
+				g->DrawPixel((float)x*10.0f, (float)y*10.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+
+		for (int j = 0; j < 8; j++)
+		{
+			if ((word[i] & (0x80 >> j)) != 0)	//bit is 1
+			{
+				x = 36 + j;
+				g->DrawPixel((float)x*10.0f, (float)y*10.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+
+		y++;
+	}
+
+	g->EndDraw();
+
+	if (GetKeyState('1') & 0x8000)		//1 is pressed
+	{
+		gameChosen = true;
+		return "tetris";
+	}
+	else if (GetKeyState('2') & 0x8000)		//2 is pressed
+	{
+		gameChosen = true;
+		return "pong";
+	}
+	else if (GetKeyState('3') & 0x8000)
+	{
+		gameChosen = true;
+		return "brix";
+	}
+	
+	return "";
 }
 
 void draw()
@@ -157,6 +234,7 @@ void getInput()
 		else if (GetKeyState('3') & 0x8000)
 		{
 			mychip->key[3] = 1;
+			bool gameChosen = false;
 		}
 		else if (GetKeyState('4') & 0x8000)
 		{
