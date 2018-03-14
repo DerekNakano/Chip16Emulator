@@ -78,10 +78,6 @@ void chip8::eCycle()
 
 	opcode = (memory[pc] << 8) | memory[pc + 1];
 
-	/*bool filler;
-
-	filler = checkKey();*/
-
 	dFlag = false;
 
 	decode();
@@ -105,8 +101,6 @@ void chip8::decode()
 	
 	if (opcode == 0x00E0)
 	{
-		/*for (int i = 0; i < 2048; i++)		//clear screen
-			display[i] = 0;*/
 
 		memset(display, 0, 2048 * sizeof(char));
 
@@ -117,8 +111,6 @@ void chip8::decode()
 	{
 		sp--;		//back up to last address
 		pc = stack[sp];		//set program counter to previous address
-
-		//stack[sp] = 0;
 
 		pc += 2;
 	}
@@ -173,7 +165,6 @@ void chip8::decode()
 		//check if register value equal to one another
 		if (registers[regX] == registers[regY])
 		{
-			//cout << "skip ins\n";
 			pc += 2;			//skip ins
 		}
 
@@ -351,7 +342,7 @@ void chip8::decode()
 	{
 
 		stack[sp] = pc;		//store program counter on stack
-		//if(sp < 15)
+		
 		sp++;
 
 		pc = registers[0] + (opcode & 0x0FFF);
@@ -440,11 +431,6 @@ void chip8::decode()
 	{
 
 		regX = (opcode & 0x0F00) >> 8;
-
-		/*while (!checkKey())	//loops until one of the keys are pressed
-		{
-
-		}*/
 
 		for (int i = 0; i < 16; i++)
 		{
@@ -546,8 +532,6 @@ bool chip8:: checkKey()
 	for (int i = 0; i < 16; i++)	//clear keys
 		key[i] = 0;
 
-	//BlockInput(false);		//unblock key input
-
 	if (GetKeyState('1') & 0x8000)		//1 is pressed
 	{
 		key[1] = 1;
@@ -628,8 +612,6 @@ bool chip8:: checkKey()
 		key[15] = 1;
 		return true;
 	}
-	
-	//BlockInput(true);		//block key input for time being
 
 	return false;
 }

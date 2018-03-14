@@ -34,8 +34,6 @@ class chip8
 		unsigned short indexReg;
 		unsigned short pc;
 
-		//unsigned char display[2048];
-
 		unsigned char dtimer;
 		unsigned char stimer;
 

@@ -7,6 +7,7 @@
 #include "chip8.h" 
 #include "graphics.h"
 #include <ctime>
+#include <chrono>
 
 chip8* mychip;
 graphics* g;
@@ -20,15 +21,9 @@ string games();			//displays the game choices
 
 LRESULT CALLBACK WindowProc(_In_ HWND   hwnd, _In_ UINT   uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
 {
-	if (uMsg == WM_DESTROY)// || uMsg == WM_CLOSE)		//when user closes window
+	if (uMsg == WM_DESTROY)		//when user closes window
 	{
 		PostQuitMessage(0);		//return code 0
-		
-		/*
-		if(g)
-			delete g;
-		if(mychip)
-			delete mychip;*/
 
 		return 0;
 	}
@@ -36,7 +31,6 @@ LRESULT CALLBACK WindowProc(_In_ HWND   hwnd, _In_ UINT   uMsg, _In_ WPARAM wPar
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);	//passes it on to default winow
 }
 
-//int main(int argc, char **argv)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int nCmdShow)
 {
 	WNDCLASSEX windowclass;
@@ -73,12 +67,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int n
 
 	mychip = new chip8();
 
-	clock_t t;
-	float dur;
-
 	while (message.message != WM_QUIT)// && message.message != WM_CLOSE && message.message != WM_DESTROY)
 	{
-		t = clock();
+
+		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 		if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))	//if there was a message then we want to send it to window proc
 			DispatchMessage(&message);
@@ -105,19 +97,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmd, int n
 
 		getInput();
 
-		t = clock() - t;	//get clock duration of cycle
-
-		dur = (float)t * 1000 / CLOCKS_PER_SEC;		//duration in milli
+		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		float dur = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
 
 		if (16.67 > dur)
-			Sleep(16.67 - (float)dur);
+			Sleep(16.67 - dur);
 	}
-
-	/*
-	if(mychip)
-		delete mychip;
-	if(g)
-		delete g;*/
 
 	delete mychip;
 	delete g;
@@ -198,7 +183,7 @@ void draw()
 	int y = 0;
 
 	g->BeginDraw();
-	//g->ClearScreen(0.0f, 0.0f, 0.5f);
+
 	for (int i = 0; i < 2048; i++)
 	{
 		x++;
@@ -220,8 +205,7 @@ void draw()
 void getInput()
 {
 
-		for (int i = 0; i < 16; i++)	//clear keys
-			mychip->key[i] = 0;
+		memset(mychip->key, 0, 16 * sizeof(char)); //clear keys
 
 		if (GetKeyState('1') & 0x8000)		//1 is pressed
 		{
