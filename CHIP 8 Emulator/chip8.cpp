@@ -52,7 +52,9 @@ chip8::~chip8()
 void chip8::loadGame(string name)
 {
 	FILE * game;
-	fopen_s(&game, name.c_str(), "rb");		//opens game
+	string path = "./Games/" + name;
+
+	fopen_s(&game, path.c_str(), "rb");		//opens game
 
 	int size = 0; 
 

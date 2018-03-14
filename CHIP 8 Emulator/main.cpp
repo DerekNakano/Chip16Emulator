@@ -218,7 +218,6 @@ void getInput()
 		else if (GetKeyState('3') & 0x8000)
 		{
 			mychip->key[3] = 1;
-			bool gameChosen = false;
 		}
 		else if (GetKeyState('4') & 0x8000)
 		{
